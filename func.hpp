@@ -8,6 +8,33 @@
 #include <iostream>
 #include <list>
 #include <string>
+#include <fstream>
+
+std::list<std::string> read_text_data(const std::string& filename) {
+    std::ifstream file(filename);
+    std::list<std::string> icfl_t;
+
+    if(file.is_open()){
+        int num_nodes;
+        if (!(file >> num_nodes)) {
+            throw std::runtime_error("Errore reading file: " + filename);
+        }
+        file.ignore(); // Ignora il carattere di nuova riga dopo l'intero
+        for (int i = 0; i < num_nodes; ++i) {
+            std::string node_data;
+            if (!std::getline(file, node_data)) {
+                throw std::runtime_error("Error.");
+            }
+            icfl_t.push_back(node_data);
+        }
+        file.close();
+    }
+    else{
+        throw std::runtime_error("cannot open file: " + filename);
+    }
+    return icfl_t;
+}
+
 
 /**
  * @brief Costruisce e restituisce una lista di stringhe di esempio.

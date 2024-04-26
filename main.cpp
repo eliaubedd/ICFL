@@ -31,6 +31,8 @@ int main()
     std::cout << "Insertion target h: " << h << std::endl;
     std::cout << "Nodo dell'insertion target: " << *find_node(xgList, h) << std::endl;
 
+    std::list<std::string> prova = read_text_data("../input.txt");
+    print_list(prova);
     return 0;
 
 }
