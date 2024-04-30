@@ -10,7 +10,19 @@
 #include <string>
 #include <fstream>
 
-std::list<std::string> read_text_data(const std::string& filename) {
+/**
+ * @brief Costruisce e restituisce una lista di stringhe da un file di testo.
+ *
+ * Questa funzione legge da un file di testo il numero di nodi seguito da una serie di stringhe e costruisce una
+ * lista di stringhe con i contenuti letti dal file.
+ * Se il file non può essere aperto o se si verificano errori durante la lettura, viene lanciata un'eccezione
+ * std::runtime_error.
+ *
+ * @param filename Il nome del file di testo da leggere.
+ * @return Una lista di stringhe contenente i dati letti dal file.
+ * @throw std::runtime_error Se si verificano errori durante l'apertura del file o durante la lettura dei dati.
+ */
+std::list<std::string> build_input_ICFL(const std::string& filename) {
     std::ifstream file(filename);
     std::list<std::string> icfl_t;
 
@@ -30,7 +42,7 @@ std::list<std::string> read_text_data(const std::string& filename) {
         file.close();
     }
     else{
-        throw std::runtime_error("cannot open file: " + filename);
+        throw std::runtime_error("Cannot open file: " + filename);
     }
     return icfl_t;
 }

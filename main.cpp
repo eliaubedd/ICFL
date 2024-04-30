@@ -3,7 +3,7 @@
 int main()
 {
     //Create text
-    std::list<std::string> icfl_text = build_ICFL();
+    std::list<std::string> icfl_text = build_input_ICFL("../input.txt");
     std::cout << "Sia ICFL(T) =" ; print_list(icfl_text);
 
     //Create suffix
@@ -26,13 +26,10 @@ int main()
     std::cout << "bit vector Bx: "; print_bv(bv_x);
     std::cout << "bit vector Bz: "; print_bv(bv_z);
 
-    std::cout << *find_node(icfl_text, 3) << std::endl;
     unsigned int h = getInsertionTarget(bv_x, bv_z, icfl_text, y);
     std::cout << "Insertion target h: " << h << std::endl;
-    std::cout << "Nodo dell'insertion target: " << *find_node(xgList, h) << std::endl;
+    std::cout << "Nodo dell'insertion target: " << *find_node(xgList, h-1) << std::endl;
 
-    std::list<std::string> prova = read_text_data("../input.txt");
-    print_list(prova);
     return 0;
 
 }
