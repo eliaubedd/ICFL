@@ -1,5 +1,7 @@
 #include "func.hpp"
 
+#include <string>
+
 int main()
 {
     //Create text
@@ -28,7 +30,24 @@ int main()
 
     unsigned int h = getInsertionTarget(bv_x, bv_z, icfl_text, y);
     std::cout << "Insertion target h: " << h << std::endl;
-    std::cout << "Nodo dell'insertion target: " << *find_node(xgList, h-1) << std::endl;
+    std::cout << "Nodo dell'insertion target: " << *find_node(xgList, h) << std::endl;
+
+    std::cout << "-----------" << std::endl;
+
+    tree<std::string> tr;
+    tree<std::string>::iterator top, one, two, loc, banana;
+
+    top=tr.begin();
+    one=tr.insert(top, "one");
+    two=tr.append_child(one, "two");
+    tr.append_child(two, "apple");
+    banana=tr.append_child(two, "banana");
+    tr.append_child(banana,"cherry");
+    tr.append_child(two, "peach");
+    tr.append_child(one,"three");
+
+    print_tree(tr, tr.begin());
+
 
     return 0;
 

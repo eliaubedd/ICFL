@@ -5,6 +5,7 @@
 
 #include <pasta/bit_vector/bit_vector.hpp>
 #include <pasta/bit_vector/support/flat_rank_select.hpp>
+#include <tree.hh>
 #include <iostream>
 #include <list>
 #include <string>
@@ -52,6 +53,7 @@ std::list<std::string> build_input_ICFL(const std::string& filename) {
  * @brief Costruisce e restituisce una lista di stringhe di esempio.
  *
  * Costruisce una lista di stringhe di esempio e la restituisce.
+ * ICFL(T) = < aaa baa caabca dcaabca >
  *
  * @return Lista di stringhe.
  */
@@ -68,6 +70,7 @@ std::list<std::string> build_ICFL(){
  * @brief Costruisce e restituisce una [x]_g-list di esempio.
  *
  * Costruisce una lista di interi di esempio e la restituisce.
+ * [x]_g-list =  < 19 3 6 12 >
  *
  * @return Lista di interi.
  */
@@ -84,6 +87,7 @@ std::list<int> build_xgList(){
  * @brief Costruisce e restituisce una [z]_g-list di esempio.
  *
  * Costruisce una lista di interi di esempio e la restituisce.
+ * [z]_g-list =  < 16 9 >
  *
  * @return Lista di interi.
  */
@@ -104,11 +108,11 @@ std::list<int> build_zgList(){
  */
 template <typename T>
 void print_list(std::list<T> &list){
-    std::cout << " < ";
+    std::cout << " [ ";
     for (const T& x : list) {
         std::cout << x << " ";
     }
-    std::cout << "> " << std::endl;
+    std::cout << "] " << std::endl;
 }
 
 /**
@@ -160,7 +164,7 @@ typename std::list<T>::iterator find_node(std::list<T> &list, unsigned int i){
  * @param b_x BitVector associato al suffiso x.
  * @param b_z BitVector associato al suffisso z = xy.
  * @param icfl_t Lista di stringhe ICFL.
- * @param y Suffisso di x.
+ * @param y Suffisso di z.
  * @return Punto di inserimento calcolato.
  */
 unsigned int getInsertionTarget(pasta::BitVector& b_x, pasta::BitVector& b_z, std::list<std::string> &icfl_t, std::string y){
@@ -197,3 +201,31 @@ unsigned int getInsertionTarget(pasta::BitVector& b_x, pasta::BitVector& b_z, st
     h = p + 1;
     return h;
 }
+
+
+template<typename T>
+void print_tree(const tree<T>& tr, typename tree<T>::iterator it, std::string blank = "", bool last_child = false) {
+    auto child = tr.begin(it);
+    auto last = tr.end(it);
+    --last;
+
+    if (it != tr.begin()) {
+        std::cout << blank;
+        if (last_child) {
+            std::cout << "└── ";
+            blank.append("    ");
+        } else {
+            std::cout << "├── ";
+            blank.append("│   ");
+        }
+    }
+
+    std::cout << *it << std::endl;
+
+    while (child != tr.end(it)) {
+        print_tree(tr, child, blank, child == last);
+        ++child;
+    }
+}
+
+
