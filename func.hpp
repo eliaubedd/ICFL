@@ -146,6 +146,13 @@ void print_bv(const pasta::BitVector &bv) {
     std::cout << std::endl;
 }
 
+void print_bit_map(const std::unordered_map<std::string, pasta::BitVector>& map) {
+    for (const auto& pair : map) {
+        std::cout << "Key: " << pair.first << ", Value: ";
+        print_bv(pair.second);  // Chiama `print_bv` per stampare il valore
+    }
+}
+
 /**
  * @brief Trova l'elemento all'indice specificato in una lista.
  *
@@ -317,13 +324,6 @@ void build_tree(std::list<T> &icfl_t) {
         }
 
         print_bit_map(bit_map);
-    }
-}
-
-void print_bit_map(const std::unordered_map<std::string, pasta::BitVector>& map) {
-    for (auto& pair : map) {
-        std::cout << "Key: " << pair.first << ", Value: ";
-        print_bv(pair.second);  // Chiama `print_bv` per stampare il valore
     }
 }
 

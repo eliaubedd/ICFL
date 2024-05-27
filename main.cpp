@@ -51,9 +51,9 @@ int main()
     std::cout << "-----------" << std::endl;
     std::cout << "max length: " << get_maximum_length_from_factors(icfl_text) << std::endl;
     std::cout << build_text_from_ICFL(icfl_text) << std::endl;
-    //build_tree(icfl_text);
-    std::vector<int> v = {1, 2, 3, 4, 5};
-    v.insert(v.begin(), 100);
+
+    build_tree(icfl_text);
+
     return 0;
 
 }
