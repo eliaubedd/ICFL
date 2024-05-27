@@ -139,8 +139,8 @@ void print_list(std::list<T> &list){
  *
  * @param bv Oggetto BitVector da stampare.
  */
-void print_bv(pasta::BitVector &bv){
-    for (auto &it : bv){
+void print_bv(const pasta::BitVector &bv) {
+    for (auto &it: bv) {
         std::cout << (it ? '1' : '0');
     }
     std::cout << std::endl;
@@ -283,7 +283,7 @@ void build_tree(std::list<T> &icfl_t) {
 
     for (int l = 0; l < max_length; ++l) {
         std::unordered_map<std::string, std::vector<int>> suffix_map;
-        std::unordered_map<std::string, pasta::BitVector*> bit_map;
+        std::unordered_map<std::string, pasta::BitVector> bit_map;
         std::string suffix = "";
         unsigned int total_length = 0;
 
@@ -299,26 +299,31 @@ void build_tree(std::list<T> &icfl_t) {
 
                 if(suffix_map.find(suffix) == suffix_map.end()){
                     std::vector<int> suffix_g_list;
-                    pasta::BitVector B_s(icfl_t.size(), 0);
-                    print_bv(B_s);
-
-                    suffix_map.insert(std::make_pair(suffix, suffix_g_list));
+                    suffix_map.emplace(suffix, suffix_g_list);
                     suffix_map[suffix].push_back(occ);
 
-                    //TODO EMPLACE
-                    bit_map.insert(std::make_pair(suffix, &B_s));
+                    bit_map.emplace(suffix, pasta::BitVector (icfl_t.size(), 0));
                 }
                 else{
-                    //TODO
-
+                    if(i != icfl_t.size() - 1){
+                        suffix_map[suffix].push_back(occ);
+                    }
+                    else{
+                        suffix_map[suffix].insert(suffix_map[suffix].begin(), occ); //push front
+                    }
                 }
+                bit_map[suffix][i] = 1;
             }
         }
 
-        // Pulizia della memoria allocata dinamicamente
-        for (auto& pair : bit_map) {
-            delete pair.second;
-        }
+        print_bit_map(bit_map);
+    }
+}
+
+void print_bit_map(const std::unordered_map<std::string, pasta::BitVector>& map) {
+    for (auto& pair : map) {
+        std::cout << "Key: " << pair.first << ", Value: ";
+        print_bv(pair.second);  // Chiama `print_bv` per stampare il valore
     }
 }
 
