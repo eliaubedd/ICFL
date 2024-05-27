@@ -48,6 +48,23 @@ std::list<std::string> build_input_ICFL(const std::string& filename) {
     return icfl_t;
 }
 
+/**
+ * @brief Costruisce una stringa concatenando tutti gli elementi di una lista di stringhe.
+ *
+ * Questa funzione scorre attraverso una lista di stringhe, concatenando ciascun elemento in un'unica stringa finale.
+ *
+ * @param icfl_t La lista di stringhe da concatenare.
+ * @return Una stringa che contiene tutti gli elementi della lista concatenati.
+ */
+std::string build_text_from_ICFL(std::list<std::string> &icfl_t){
+    auto it = icfl_t.begin();
+    std::string text = "";
+    while(it != icfl_t.end()){
+        text = text + *it;
+        ++it;
+    }
+    return text;
+}
 
 /**
  * @brief Costruisce e restituisce una lista di stringhe di esempio.
@@ -202,7 +219,39 @@ unsigned int getInsertionTarget(pasta::BitVector& b_x, pasta::BitVector& b_z, st
     return h;
 }
 
+/**
+ * @brief Calcola e restituisce la lunghezza massima delle stringhe in una lista.
+ *
+ * Questa funzione scorre attraverso una lista di stringhe e determina la lunghezza massima tra tutte le stringhe presenti nella lista.
+ *
+ * @param icfl_t La lista di stringhe da esaminare.
+ * @return La lunghezza massima tra tutte le stringhe nella lista.
+ */
+unsigned int get_maximum_length_from_factors(std::list<std::string> &icfl_t){
+    unsigned int max = 0;
+    auto it = icfl_t.begin();
+    while(it != icfl_t.end()){
+        if (it->size() > max){
+            max = it->size();
+        }
+        ++it;
+    }
+    return max;
+}
 
+/**
+ * @brief Stampa una rappresentazione ad albero di una struttura ad albero.
+ *
+ * Questa funzione stampa una rappresentazione visuale di un albero a partire da un iteratore specificato.
+ * La funzione utilizza una stringa di spazi per mantenere la struttura dell'albero e indicare le relazioni padre-figlio.
+ *
+ *
+ * @tparam T Il tipo degli elementi memorizzati nell'albero.
+ * @param tr La struttura ad albero da stampare.
+ * @param it L'iteratore al nodo corrente dell'albero.
+ * @param blank Una stringa utilizzata per mantenere l'indentazione dei nodi dell'albero (default è una stringa vuota).
+ * @param last_child Un booleano che indica se il nodo corrente è l'ultimo figlio (default è false).
+ */
 template<typename T>
 void print_tree(const tree<T>& tr, typename tree<T>::iterator it, std::string blank = "", bool last_child = false) {
     auto child = tr.begin(it);
@@ -227,5 +276,56 @@ void print_tree(const tree<T>& tr, typename tree<T>::iterator it, std::string bl
         ++child;
     }
 }
+
+template<typename T>
+void build_tree(std::list<T> &icfl_t) {
+    unsigned int max_length = get_maximum_length_from_factors(icfl_t);
+
+    for (int l = 0; l < max_length; ++l) {
+        std::unordered_map<std::string, std::vector<int>> suffix_map;
+        std::unordered_map<std::string, pasta::BitVector*> bit_map;
+        std::string suffix = "";
+        unsigned int total_length = 0;
+
+        for (int i = 0; i < icfl_t.size(); ++i) {
+            std::string factor = *find_node(icfl_t, i);
+            total_length = total_length + factor.size();
+            unsigned int occ = 0;
+
+            if (l < factor.length()) {
+                int start = factor.length() - (l+1) - 1;
+                suffix = factor.substr(start, l+1);
+                occ = total_length - (l+1);
+
+                if(suffix_map.find(suffix) == suffix_map.end()){
+                    std::vector<int> suffix_g_list;
+                    pasta::BitVector B_s(icfl_t.size(), 0);
+                    print_bv(B_s);
+
+                    suffix_map.insert(std::make_pair(suffix, suffix_g_list));
+                    suffix_map[suffix].push_back(occ);
+
+                    //TODO EMPLACE
+                    bit_map.insert(std::make_pair(suffix, &B_s));
+                }
+                else{
+                    //TODO
+
+                }
+            }
+        }
+
+        // Pulizia della memoria allocata dinamicamente
+        for (auto& pair : bit_map) {
+            delete pair.second;
+        }
+    }
+}
+
+
+
+
+
+
 
 

@@ -48,6 +48,11 @@ int main()
 
     print_tree(tr, tr.begin());
 
+    std::cout << "-----------" << std::endl;
+    std::cout << "max length: " << get_maximum_length_from_factors(icfl_text) << std::endl;
+    std::cout << build_text_from_ICFL(icfl_text) << std::endl;
+    build_tree(icfl_text);
+
 
     return 0;
 
