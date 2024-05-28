@@ -284,46 +284,53 @@ void print_tree(const tree<T>& tr, typename tree<T>::iterator it, std::string bl
     }
 }
 
+void print_suffix_map(const std::unordered_map<std::string, std::vector<int>>& suffix_map) {
+    for (const auto& pair : suffix_map) {
+        std::cout << "Key: " << pair.first << ", Values: ";
+        for (const auto& value : pair.second) {
+            std::cout << value << " ";
+        }
+        std::cout << std::endl;
+    }
+}
+
 template<typename T>
-void build_tree(std::list<T> &icfl_t) {
+void build_tree(std::list<T>& icfl_t) {
     unsigned int max_length = get_maximum_length_from_factors(icfl_t);
 
-    for (int l = 0; l < max_length; ++l) {
+    for (unsigned int l = 0; l < max_length; ++l) {
         std::unordered_map<std::string, std::vector<int>> suffix_map;
         std::unordered_map<std::string, pasta::BitVector> bit_map;
         std::string suffix = "";
         unsigned int total_length = 0;
 
-        for (int i = 0; i < icfl_t.size(); ++i) {
+        for (unsigned int i = 0; i < icfl_t.size(); ++i) {
             std::string factor = *find_node(icfl_t, i);
-            total_length = total_length + factor.size();
+            total_length += factor.size();
             unsigned int occ = 0;
 
             if (l < factor.length()) {
-                int start = factor.length() - (l+1) - 1;
-                suffix = factor.substr(start, l+1);
-                occ = total_length - (l+1);
+                int start = factor.length() - (l + 1);
+                suffix = factor.substr(start, l + 1);
+                occ = total_length - (l + 1);
 
-                if(suffix_map.find(suffix) == suffix_map.end()){
+                if (suffix_map.find(suffix) == suffix_map.end()) {
                     std::vector<int> suffix_g_list;
                     suffix_map.emplace(suffix, suffix_g_list);
                     suffix_map[suffix].push_back(occ);
 
-                    bit_map.emplace(suffix, pasta::BitVector (icfl_t.size(), 0));
-                }
-                else{
-                    if(i != icfl_t.size() - 1){
+                    // Try_emplace instead of emplace
+                    bit_map.try_emplace(suffix, icfl_t.size(), 0);
+                } else {
+                    if (i != icfl_t.size() - 1) {
                         suffix_map[suffix].push_back(occ);
-                    }
-                    else{
-                        suffix_map[suffix].insert(suffix_map[suffix].begin(), occ); //push front
+                    } else {
+                        suffix_map[suffix].insert(suffix_map[suffix].begin(), occ); // push front
                     }
                 }
                 bit_map[suffix][i] = 1;
             }
         }
-
-        print_bit_map(bit_map);
     }
 }
 
