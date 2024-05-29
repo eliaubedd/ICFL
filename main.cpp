@@ -1,4 +1,5 @@
 #include "func.hpp"
+#include "myTree.hpp"
 
 #include <string>
 
@@ -23,16 +24,16 @@ int main()
     std::list<int> xgList = build_xgList();
     std::list<int> zgList = build_zgList();
     std::cout << "[x]_g-list = "; print_list(xgList);
-    std::cout << "[z]_g-list = "; print_list(zgList);
+    std::cout << "[z]_g-list = "; print_list(zgList); */
 
     //Create a bit vectors
-    pasta::BitVector bv_x(4, 1);
+    //pasta::BitVector bv_x(4, 1);
     pasta::BitVector bv_z(4,0);
     bv_z[2] = 1;
     bv_z[3] = 1;
-    std::cout << "bit vector Bx: "; print_bv(bv_x);
+    //std::cout << "bit vector Bx: "; print_bv(bv_x);
     std::cout << "bit vector Bz: "; print_bv(bv_z);
-
+    /*
     unsigned int h = getInsertionTarget(bv_x, bv_z, icfl_text, y);
     std::cout << "Insertion target h: " << h << std::endl;
     std::cout << "Nodo dell'insertion target: " << *find_node(xgList, h) << std::endl;
@@ -56,7 +57,11 @@ int main()
 
     std::cout << "-----------" << std::endl;
     */
-    build_tree(icfl_text);
+    //build_tree(icfl_text);
+
+    Node node(nullptr, {}, {0, 0}, {}, &bv_z);
+    std::cout << node;
+
 
     return 0;
 

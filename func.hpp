@@ -331,6 +331,10 @@ void build_tree(std::list<T>& icfl_t) {
                 bit_map[suffix][i] = 1;
             }
         }
+
+        for(auto it = suffix_map.begin(); it != suffix_map.end(); ++it){
+            
+        }
     }
 }
 

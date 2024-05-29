@@ -44,7 +44,7 @@ class tree_node_ { // size: 5*4=20 bytes (on 32 bit arch), can be reduced by 8.
 		tree_node_(T&&);
 
 		tree_node_<T> *parent;
-	   tree_node_<T> *first_child, *last_child;
+	    tree_node_<T> *first_child, *last_child;
 		tree_node_<T> *prev_sibling, *next_sibling;
 		T data;
 }; 

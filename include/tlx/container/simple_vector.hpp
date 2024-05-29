@@ -80,11 +80,7 @@ public:
         if (size_ > 0)
             array_ = create_array(size_);
     }
-
-    //! non-copyable: delete copy-constructor
-    SimpleVector(const SimpleVector&) = delete;
-    //! non-copyable: delete assignment operator
-    SimpleVector& operator = (const SimpleVector&) = delete;
+    
 
     //! move-constructor
     SimpleVector(SimpleVector&& v) noexcept
