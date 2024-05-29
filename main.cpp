@@ -59,9 +59,8 @@ int main()
     */
     //build_tree(icfl_text);
 
-    Node node(nullptr, {}, {0, 0}, {}, &bv_z);
+    Node node(nullptr, {}, {0, 0}, {}, 0, &bv_z);
     std::cout << node;
-
 
     return 0;
 
