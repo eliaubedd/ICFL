@@ -67,7 +67,7 @@ build CMakeFiles/ICFL.dir/main.cpp.o: CXX_COMPILER__ICFL_unscanned_Debug /Users/
 build ICFL: CXX_EXECUTABLE_LINKER__ICFL_Debug CMakeFiles/ICFL.dir/main.cpp.o
   FLAGS = -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.4.sdk
   OBJECT_DIR = CMakeFiles/ICFL.dir
-  POST_BUILD = cd /Users/eliamartin/Desktop/ICFL/cmake-build-debug && leaks -atExit -- /Users/eliamartin/Desktop/ICFL/cmake-build-debug/ICFL
+  POST_BUILD = :
   PRE_LINK = :
   TARGET_FILE = ICFL
   TARGET_PDB = ICFL.dbg

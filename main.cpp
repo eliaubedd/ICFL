@@ -2,6 +2,7 @@
 #include "myTree.hpp"
 
 #include <string>
+//run this command or leaks: leaks -atExit -- cmake-build-debug/ICFL
 
 int main()
 {
@@ -61,6 +62,10 @@ int main()
 
     Node node(nullptr, {}, {0, 0}, {}, 0, &bv_z);
     std::cout << node;
+    std::cout << &bv_z << " " << node.get_bv_pointer() << std::endl;
+    print_bv(bv_z);
+    print_bv(*node.get_bv_pointer());
+
 
     return 0;
 

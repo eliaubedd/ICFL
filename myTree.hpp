@@ -25,7 +25,30 @@ private:
     unsigned int _insertion_target; ///< Insertion target associato al nodo.
     pasta::BitVector *_bv; ///< Puntatore a un oggetto BitVector associato al nodo.
 
+    static const std::string* _T; ///< Puntatore alla stringa globale T.
+
 public:
+
+    /**
+    * @brief Imposta la stringa globale T.
+    * @param T Puntatore alla stringa T.
+    */
+    static void set_global_text(const std::string* T) {
+        _T = T;
+    }
+
+    /**
+    * @brief Funzione di confronto per ordinare i figli in ordine lessicografico.
+    * @param a Puntatore al primo nodo.
+    * @param b Puntatore al secondo nodo.
+    * @return True se il nodo a deve precedere il nodo b.
+    */
+    static bool compare_nodes (Node *a, Node *b){
+        std::string suffix_a = _T->substr(a->_indexes.first, a->_indexes.second - a->_indexes.first);
+        std::string suffix_b = _T->substr(b->_indexes.first, b->_indexes.second - b->_indexes.first);
+        return suffix_a < suffix_b;
+    }
+
     /**
      * @brief Costruttore di default.
      */
@@ -41,9 +64,14 @@ public:
      * @param bv Puntatore a un oggetto BitVector associato al nodo.
      */
     Node(Node* parent, std::vector<Node*> children, std::pair<unsigned int, unsigned int> indexes,
-         std::vector<int> g_list, unsigned int insertion_target, pasta::BitVector *bv)
-            : _parent(parent), _children(std::move(children)), _indexes(std::move(indexes)), _g_list(std::move(g_list)), _insertion_target(insertion_target) {
-        _bv = bv;
+         std::vector<int> g_list, unsigned int insertion_target, pasta::BitVector *bv):
+         _parent(parent), _children(std::move(children)), _indexes(std::move(indexes)),
+         _g_list(std::move(g_list)), _insertion_target(insertion_target)
+         {
+            _bv = new pasta::BitVector(bv->size(), 0);
+            for (unsigned int i = 0; i < bv->size(); ++i) {
+                (*_bv)[i] = (*bv)[i] ? 1 : 0; // = is comparison operator for bv, not ==
+            }
     }
 
     /**
@@ -51,6 +79,7 @@ public:
      * @param other Nodo da cui copiare.
      * @return Nodo modificato.
      */
+
     Node& operator=(const Node& other) {
         if (this != &other) {
             _parent = other._parent;
@@ -58,9 +87,70 @@ public:
             _indexes = other._indexes;
             _g_list = other._g_list;
             _insertion_target = other._insertion_target;
-            _bv = other._bv;
+            delete _bv;
+            if (other._bv) {
+                _bv = new pasta::BitVector(other._bv->size(), false);
+                for (size_t i = 0; i < other._bv->size(); ++i) {
+                    (*_bv)[i] = (*other._bv)[i] ? 1 : 0;
+                }
+            } else {
+                _bv = nullptr;
+            }
         }
         return *this;
+    }
+
+    /**
+     * @brief Costruttore di copia.
+     * @param other Nodo da cui copiare.
+     */
+    Node(const Node& other) : _parent(other._parent), _children(other._children), _indexes(other._indexes),
+                              _g_list(other._g_list), _insertion_target(other._insertion_target) {
+        if (other._bv) {
+            _bv = new pasta::BitVector(other._bv->size(), false);
+            for (size_t i = 0; i < other._bv->size(); ++i) {
+                (*_bv)[i] = (*other._bv)[i] ? 1 : 0;
+            }
+        } else {
+            _bv = nullptr;
+        }
+    }
+
+    std::string get_suffix(){
+        return _T->substr(_indexes.first, _indexes.second - _indexes.first);
+    }
+
+    /**
+    * @brief Restituisce il puntatore al nodo genitore.
+    * @return Puntatore al nodo genitore.
+    */
+    Node* get_parent() const {
+        return _parent;
+    }
+
+    /**
+    * @brief Imposta i figli del nodo.
+    * @param children Vettore di puntatori ai nodi figli.
+    */
+    void set_children(std::vector<Node*> children) {
+        _children = std::move(children);
+    }
+
+    /**
+     * @brief Aggiunge un figlio mantenendo l'ordine lessicografico.
+     * @param node Puntatore al nodo figlio da aggiungere.
+     */
+    void add_child(Node* node) {
+        _children.push_back(node);
+        std::sort(_children.begin(), _children.end(), compare_nodes);
+    }
+
+    /**
+    * @brief Restituisce il suffisso associato al nodo.
+    * @return Il suffisso associato al nodo.
+    */
+    pasta::BitVector* get_bv_pointer(){
+        return _bv;
     }
 
     /**
@@ -89,6 +179,8 @@ public:
 };
 
 class Tree{
+
+
 
 };
 
