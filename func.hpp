@@ -10,6 +10,8 @@
 #include <list>
 #include <string>
 #include <fstream>
+#include "tree.hpp"
+#include "node.hpp"
 
 /**
  * @brief Costruisce e restituisce una lista di stringhe da un file di testo.
@@ -140,16 +142,32 @@ void print_list(std::list<T> &list){
  * @param bv Oggetto BitVector da stampare.
  */
 void print_bv(const pasta::BitVector &bv) {
+    std::cout <<"[ ";
     for (auto &it: bv) {
-        std::cout << (it ? '1' : '0');
+        std::cout << (it ? '1' : '0') << " ";
     }
-    std::cout << std::endl;
+    std::cout << "]";
+}
+
+void print_g_list_vector(const std::vector<int> g_list){
+    std::cout << "[ ";
+    for(auto &it : g_list){
+        std::cout << it << " ";
+    }
+    std::cout << "]";
 }
 
 void print_bit_map(const std::unordered_map<std::string, pasta::BitVector>& map) {
     for (const auto& pair : map) {
         std::cout << "Key: " << pair.first << ", Value: ";
         print_bv(pair.second);  // Chiama `print_bv` per stampare il valore
+        std::cout << std::endl;
+    }
+}
+
+void print_node_map(const std::unordered_map<std::string, std::string>& map) {
+    for (const auto& pair : map) {
+        std::cout << "NODE: " << pair.first << ", PARENT: " << pair.second << std::endl;
     }
 }
 
@@ -246,42 +264,16 @@ unsigned int get_maximum_length_from_factors(std::list<std::string> &icfl_t){
     return max;
 }
 
-/**
- * @brief Stampa una rappresentazione ad albero di una struttura ad albero.
- *
- * Questa funzione stampa una rappresentazione visuale di un albero a partire da un iteratore specificato.
- * La funzione utilizza una stringa di spazi per mantenere la struttura dell'albero e indicare le relazioni padre-figlio.
- *
- *
- * @tparam T Il tipo degli elementi memorizzati nell'albero.
- * @param tr La struttura ad albero da stampare.
- * @param it L'iteratore al nodo corrente dell'albero.
- * @param blank Una stringa utilizzata per mantenere l'indentazione dei nodi dell'albero (default è una stringa vuota).
- * @param last_child Un booleano che indica se il nodo corrente è l'ultimo figlio (default è false).
- */
-template<typename T>
-void print_tree(const tree<T>& tr, typename tree<T>::iterator it, std::string blank = "", bool last_child = false) {
-    auto child = tr.begin(it);
-    auto last = tr.end(it);
-    --last;
-
-    if (it != tr.begin()) {
-        std::cout << blank;
-        if (last_child) {
-            std::cout << "└── ";
-            blank.append("    ");
-        } else {
-            std::cout << "├── ";
-            blank.append("│   ");
+std::string get_strings_difference(const std::string &string_1, const std::string &string_2){
+    std::string difference;
+    std::string tmp = string_2;
+    for(char c : string_1){
+        size_t pos = string_2.find(c);
+        if(pos == std::string::npos){
+            difference += c;
         }
     }
-
-    std::cout << *it << std::endl;
-
-    while (child != tr.end(it)) {
-        print_tree(tr, child, blank, child == last);
-        ++child;
-    }
+    return difference;
 }
 
 void print_suffix_map(const std::unordered_map<std::string, std::vector<int>>& suffix_map) {
@@ -294,13 +286,58 @@ void print_suffix_map(const std::unordered_map<std::string, std::vector<int>>& s
     }
 }
 
+
+//-TODO RIGUARDA , esce sempre root
+Node* find_deepest_prefix_node(Node* node, const std::string suffix){
+    for (Node* child : node->get_children()) {
+        if (suffix.find(child->get_suffix()) == 0) {
+            return find_deepest_prefix_node(child, suffix);
+        }
+    }
+    return node;
+}
+
+/**
+ * @brief Stampa l'albero a partire dal nodo specificato.
+ * @param node Puntatore al nodo da cui iniziare la stampa.
+ * @param prefix Prefisso della riga corrente (per formattazione).
+ * @param is_last True se il nodo è l'ultimo figlio.
+ */
+void print_tree(Node *node, std::string prefix = "", bool is_last = true) {
+
+    std::cout << prefix;
+
+    if (is_last) {
+        std::cout << "└── ";
+        prefix += "    ";
+    } else {
+        std::cout << "├── ";
+        prefix += "│   ";
+    }
+
+    std::cout << *node << std::endl;
+
+    for (size_t i = 0; i < node->get_children().size(); ++i) {
+        print_tree(node->get_children()[i], prefix, i == node->get_children().size() - 1);
+    }
+
+}
+
+
 template<typename T>
-void build_tree(std::list<T>& icfl_t) {
+Tree build_tree(std::list<T>& icfl_t) {
+
+    pasta::BitVector bv_e (icfl_t.size(), 0);
+    Node root(nullptr, nullptr, {}, std::make_pair(0,0), {}, 0, &bv_e, build_text_from_ICFL(icfl_t));
+    Tree tree (build_text_from_ICFL(icfl_t), root);
+    std::unordered_map<std::string, std::vector<int>> suffix_map;
+    std::unordered_map<std::string, pasta::BitVector> bit_map;
+    std::unordered_map<std::string, std::string> node_map; //PROVA
+    node_map.insert(std::make_pair(root.get_suffix(), "null"));
+
     unsigned int max_length = get_maximum_length_from_factors(icfl_t);
 
     for (unsigned int l = 0; l < max_length; ++l) {
-        std::unordered_map<std::string, std::vector<int>> suffix_map;
-        std::unordered_map<std::string, pasta::BitVector> bit_map;
         std::string suffix = "";
         unsigned int total_length = 0;
 
@@ -331,12 +368,42 @@ void build_tree(std::list<T>& icfl_t) {
                 bit_map[suffix][i] = 1;
             }
         }
+        print_bit_map(bit_map);
+        print_suffix_map(suffix_map);
 
-        for(auto it = suffix_map.begin(); it != suffix_map.end(); ++it){
-            
+        //FIN QUI PERFETTO
+
+        for(auto& entry : suffix_map) {
+            std::string s = entry.first;
+            std::cout << "analyzing " << entry.first << std::endl;
+            Node* parent = find_deepest_prefix_node(&root, entry.first);
+            if (parent->get_suffix() == "0") std::cout << "PARENT -> ROOT" << std::endl;
+
+            //unsigned int insertion_target = getInsertionTarget(*(parent->get_bv_pointer()), bit_map[s], icfl_t,
+            //                                                   get_strings_difference(s, parent->get_suffix()));
+
+            std::pair<unsigned int, unsigned int> indexes (suffix_map[s][0], suffix_map[s][0] + (l+1));
+            Node child(&root, parent, {}, indexes, entry.second, 5, &bit_map[s]);
+            parent->add_child(&child);
+            std::vector<Node*> v = parent->get_children();
+            node_map[child.get_suffix()] = parent->get_suffix();
+
+
+            //std::cout << "CHILD" << std::endl;
+            //child.print_data();
         }
+
+        std::cout << "--NODE MAP:-- " << std::endl;
+
+        bit_map.clear();
+        suffix_map.clear();
+
+
     }
+    print_node_map(node_map);
+    return tree;
 }
+
 
 
 
