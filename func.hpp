@@ -220,6 +220,10 @@ unsigned int getInsertionTarget(pasta::BitVector& b_x, pasta::BitVector& b_z, st
     k = b_x.size();
     s = b_x[k] + 1;
 
+    if(i == 0){
+        return 0;
+    }
+
     if(i < k){
         u = rs_z.rank1(i-1) + b_x[k] + 1;
     }
@@ -264,6 +268,7 @@ unsigned int get_maximum_length_from_factors(std::list<std::string> &icfl_t){
     return max;
 }
 
+//-TODO CORREGGI
 std::string get_strings_difference(const std::string &string_1, const std::string &string_2){
     std::string difference;
     std::string tmp = string_2;
@@ -287,10 +292,10 @@ void print_suffix_map(const std::unordered_map<std::string, std::vector<int>>& s
 }
 
 
-//-TODO RIGUARDA , esce sempre root
 Node* find_deepest_prefix_node(Node* node, const std::string suffix){
     for (Node* child : node->get_children()) {
-        if (suffix.find(child->get_suffix()) == 0) {
+        std::string figlio = child->get_suffix();
+        if (suffix.find(figlio) == 0) {
             return find_deepest_prefix_node(child, suffix);
         }
     }
@@ -324,16 +329,12 @@ void print_tree(Node *node, std::string prefix = "", bool is_last = true) {
 }
 
 
-template<typename T>
-Tree build_tree(std::list<T>& icfl_t) {
+Tree build_tree(std::list<std::string>& icfl_t){
+    Tree tree (icfl_t);
+    Node *root = tree.get_root();
 
-    pasta::BitVector bv_e (icfl_t.size(), 0);
-    Node root(nullptr, nullptr, {}, std::make_pair(0,0), {}, 0, &bv_e, build_text_from_ICFL(icfl_t));
-    Tree tree (build_text_from_ICFL(icfl_t), root);
     std::unordered_map<std::string, std::vector<int>> suffix_map;
     std::unordered_map<std::string, pasta::BitVector> bit_map;
-    std::unordered_map<std::string, std::string> node_map; //PROVA
-    node_map.insert(std::make_pair(root.get_suffix(), "null"));
 
     unsigned int max_length = get_maximum_length_from_factors(icfl_t);
 
@@ -368,39 +369,26 @@ Tree build_tree(std::list<T>& icfl_t) {
                 bit_map[suffix][i] = 1;
             }
         }
-        print_bit_map(bit_map);
-        print_suffix_map(suffix_map);
+        //print_bit_map(bit_map);
+        //print_suffix_map(suffix_map);
 
         //FIN QUI PERFETTO
 
         for(auto& entry : suffix_map) {
             std::string s = entry.first;
-            std::cout << "analyzing " << entry.first << std::endl;
-            Node* parent = find_deepest_prefix_node(&root, entry.first);
-            if (parent->get_suffix() == "0") std::cout << "PARENT -> ROOT" << std::endl;
+            Node* parent = find_deepest_prefix_node(root, entry.first);
+            unsigned int insertion_target = getInsertionTarget(*(parent->get_bv_pointer()), bit_map[s], icfl_t,
+                                                               get_strings_difference(s, parent->get_suffix()));
 
-            //unsigned int insertion_target = getInsertionTarget(*(parent->get_bv_pointer()), bit_map[s], icfl_t,
-            //                                                   get_strings_difference(s, parent->get_suffix()));
-
-            std::pair<unsigned int, unsigned int> indexes (suffix_map[s][0], suffix_map[s][0] + (l+1));
-            Node child(&root, parent, {}, indexes, entry.second, 5, &bit_map[s]);
-            parent->add_child(&child);
-            std::vector<Node*> v = parent->get_children();
-            node_map[child.get_suffix()] = parent->get_suffix();
-
-
-            //std::cout << "CHILD" << std::endl;
-            //child.print_data();
+            std::pair<unsigned int, unsigned int> indexes(suffix_map[s][0], suffix_map[s][0] + (l + 1));
+            Node *child = new Node(root, parent, {}, indexes, entry.second, insertion_target, &bit_map[s]);
+            parent->add_child(child);
+            child->print_data();
         }
-
-        std::cout << "--NODE MAP:-- " << std::endl;
-
         bit_map.clear();
         suffix_map.clear();
 
-
     }
-    print_node_map(node_map);
     return tree;
 }
 

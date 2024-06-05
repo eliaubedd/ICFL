@@ -3,38 +3,53 @@
 
 #include <pasta/bit_vector/bit_vector.hpp>
 #include <pasta/bit_vector/support/flat_rank_select.hpp>
-#include <iostream>
-#include <utility>
-#include <ostream>
+#include <string>
+#include <vector>
 #include "node.hpp"
 
-class Tree{
+class Tree {
 
 private:
     Node* _root;
-    std::string _text;
+    std::list<std::string> _icfl;
 
 public:
-    Tree() : _root(){};
-
-    Tree(const std::string &text, Node& root) : _text(text), _root(&root){};
-
-    const std::string& get_text() const {
-        return _text;
-    }
-
-    void set_root(Node* root) {
-        _root = root;
-        if (root) {
-            root->set_text(_text);
+    Tree(const std::list<std::string> &icfl) : _icfl(icfl){
+        std::string text;
+        for (const std::string& factor : icfl) {
+            text += factor;
         }
+        _root = new Node(text, icfl.size());
     }
 
-    Node* get_root() const{
+    ~Tree() {
+        delete _root;
+    }
+
+    const std::list<std::string>& get_icfl() const {
+        return _icfl;
+    }
+
+    void set_text(const std::list<std::string>& icfl) {
+        if(!_root->get_text().empty()){
+            std::cout << "ERROR: text already setted";
+            return;
+        }
+        _icfl = icfl;
+        std::string text;
+        for (const std::string& factor : icfl) {
+            text += factor;
+        }
+        if (_root) {
+            delete _root;
+        }
+        _root = new Node();
+        _root->set_text(text);
+    }
+
+    Node* get_root() const {
         return _root;
     }
-
-
 };
 
-#endif //ICFL_TREE_HPP
+#endif // ICFL_TREE_HPP

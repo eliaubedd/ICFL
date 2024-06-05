@@ -19,22 +19,32 @@
 class Node{
 
 private:
-    Node *_parent; ///< Puntatore al nodo genitore.
-    Node *_root;
+    Node* _parent; ///< Puntatore al nodo genitore.
+    Node* _root;
     std::string _text;
     std::vector<Node*> _children; ///< Vettore di puntatori ai nodi figli.
     std::pair<unsigned int, unsigned int> _indexes; ///< Coppia di indici che rappresenta l'intervallo associato al suffisso.
     std::vector<int> _g_list; ///< g-list associata al nodo.
     unsigned int _insertion_target; ///< Insertion target associato al nodo.
-    pasta::BitVector *_bv; ///< Puntatore a un oggetto BitVector associato al nodo.
+    pasta::BitVector* _bv; ///< Puntatore a un oggetto BitVector associato al nodo.
 
 
 public:
 
+
+
     /**
     * @brief Costruttore di default.
     */
-    Node() :_root(nullptr), _parent(nullptr), _children(), _indexes(), _g_list(), _insertion_target(), _bv(nullptr), _text(){}
+    Node() : _root(this), _parent(nullptr), _text(), _children(), _indexes(0, 0), _g_list(), _insertion_target(0), _bv(nullptr) {
+        _bv = new pasta::BitVector(1, 0);
+    }
+
+    Node(const std::string& text, size_t bv_size)
+            : _root(this), _parent(nullptr), _text(text), _children(), _indexes(0, 0), _g_list(), _insertion_target(0) {
+        _bv = new pasta::BitVector(bv_size, 0);
+    }
+
 
     /**
      * @brief Costruttore base.
@@ -46,17 +56,21 @@ public:
      * @param bv Puntatore a un oggetto BitVector associato al nodo.
      */
     Node(Node* root, Node* parent, std::vector<Node*> children, std::pair<unsigned int, unsigned int> indexes,
-         std::vector<int> g_list, unsigned int insertion_target, pasta::BitVector *bv, std::string text = ""):
-            _root(root), _parent(parent), _children(std::move(children)), _indexes(std::move(indexes)),
-            _g_list(std::move(g_list)), _insertion_target(insertion_target), _text(text.empty() ? root->_text : text)
-    {
-        if(bv != nullptr){
-            _bv = new pasta::BitVector(bv->size(), 0);
-            for (unsigned int i = 0; i < bv->size(); ++i) {
-                (*_bv)[i] = (*bv)[i] ? 1 : 0; // = is comparison operator for bv, not ==
+         std::vector<int> g_list, unsigned int insertion_target, pasta::BitVector *bv):
+
+         _root(root), _parent(parent), _children(std::move(children)), _indexes(std::move(indexes)),
+         _g_list(std::move(g_list)), _insertion_target(insertion_target), _text(root->get_text()){
+
+            if (bv != nullptr) {
+                _bv = new pasta::BitVector(bv->size(), 0);
+                for (unsigned int i = 0; i < bv->size(); ++i) {
+                    (*_bv)[i] = (*bv)[i] ? 1 : 0; // = is assignment operator for bv, not ==
+                }
+            } else {
+                _bv = nullptr;
             }
-        }
-    }
+
+         }
 
     /**
     * @brief Costruttore di copia.
@@ -87,6 +101,7 @@ public:
             _indexes = other._indexes;
             _g_list = other._g_list;
             _insertion_target = other._insertion_target;
+            _text = other._text;
             delete _bv;
             if (other._bv) {
                 _bv = new pasta::BitVector(other._bv->size(), false);
@@ -100,6 +115,10 @@ public:
         return *this;
     }
 
+    ~Node() {
+        delete _bv;
+    }
+
     /**
     * @brief Restituisce il puntatore al nodo genitore.
     * @return Puntatore al nodo genitore.
@@ -108,15 +127,20 @@ public:
         return _parent;
     }
 
-    std::string get_suffix() const{
-        if(_indexes == std::make_pair(0,0)) return "0";
+    std::string get_suffix() const {
+        if (_indexes == std::make_pair(0, 0)){
+            return "";
+        }
+        int second = _indexes.second;
+        if (second > _text.size()) {
+            throw std::out_of_range("Index out of range in get_suffix()");
+        }
         return _text.substr(_indexes.first, _indexes.second - _indexes.first);
     }
 
     std::string get_text() const{
         return _text;
     }
-
 
     std::vector<Node*> get_children() const {
         return _children;
@@ -129,6 +153,10 @@ public:
                 child->set_text(text);
             }
         }
+    }
+
+    void set_bv(pasta::BitVector &bv){
+        _bv = &bv;
     }
 
     void set_parent(Node *node){
@@ -168,27 +196,39 @@ public:
     * @brief Restituisce il suffisso associato al nodo.
     * @return Il suffisso associato al nodo.
     */
-    pasta::BitVector* get_bv_pointer(){
+    pasta::BitVector* get_bv_pointer() const{
         return _bv;
     }
 
-    void print_bv(const pasta::BitVector &bv) {
-        for (auto &it: bv) {
+    void print_bv() {
+        for (auto &it: *_bv) {
             std::cout << (it ? '1' : '0');
         }
         std::cout << std::endl;
     }
 
-    void print_data(){
-        if(_indexes == std::make_pair(0, 0)){
+    void print_children(){
+        for(auto child : _children){
+            std::cout << *child << " , ";
+        }
+        std::cout << std::endl;
+    }
+
+    void print_data() {
+        std::cout << "-----NODE " << get_suffix() << " -----" << std::endl;
+        if (_indexes == std::make_pair(0, 0)) {
             std::cout << "this node is the ROOT" << std::endl;
             return;
         }
         std::cout << "Node: " << get_suffix() << std::endl;
-        std::cout << "Parent: " << _parent->get_suffix() << std::endl;
+        if (_parent) {
+            std::cout << "Parent: " << *_parent << std::endl;
+        } else {
+            std::cout << "Parent: None" << std::endl;
+        }
         std::cout << "Children: ";
         for (const auto& child : _children) {
-            std::cout << child << " ";
+            std::cout << *child << " ";
         }
         std::cout << std::endl;
         std::cout << "Indexes: (" << _indexes.first << ", " << _indexes.second << ")" << std::endl;
@@ -198,15 +238,23 @@ public:
         }
         std::cout << std::endl;
         std::cout << "Insertion target: " << _insertion_target << std::endl;
-        std::cout << "BitVector: "; print_bv(*(_bv));
+        if (_bv) {
+            std::cout << "BitVector: "; print_bv();
+        } else {
+            std::cout << "BitVector: None" << std::endl;
+        }
     }
 
     friend std::ostream& operator<<(std::ostream& os, const Node& node) {
-        os << node.get_suffix();
+        if(node.get_suffix() != ""){
+            os << node.get_suffix();
+        }
+        else{
+            os << "ROOT";
+        }
         return os;
     }
 
 };
-
 
 #endif //ICFL_NODE_HPP
