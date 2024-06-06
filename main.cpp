@@ -69,6 +69,10 @@ void test_comparisons() {
 int main()
 {
 
+    std::list<std::string> icfl_t = build_input_ICFL("../input.txt");
+    std::cout << "ICFL(T) from input.txt: ";
+    print_list(icfl_t); std::cout << std::endl;
+
     //Create suffix
     /*
     std::string x = "a";
@@ -81,34 +85,24 @@ int main()
     std::cout << "[x]_g-list = "; print_list(xgList);
     std::cout << "[z]_g-list = "; print_list(zgList);
 
+
     //Create a bit vectors
     pasta::BitVector bv_x(4, 1);
     pasta::BitVector bv_z(4, 0);
+    bv_z[2] = 1;
+    bv_z[3] = 1;
     std::cout << "bit vector Bx: "; print_bv(bv_x);
     std::cout << "bit vector Bz: "; print_bv(bv_z);
-    unsigned int h = getInsertionTarget(bv_x, bv_z, icfl_t, y);
+    unsigned int h = getInsertionTarget(bv_x, bv_z, icfl_t, get_strings_difference("abca", "a"));
     std::cout << "Insertion target h: " << h << std::endl;
-    std::cout << "Nodo dell'insertion target: " << *find_node(xgList, h) << std::endl;
     std::cout << "-----" << std::endl;
     std::cout << get_strings_difference("ciao", "ci") << std::endl;
-
-*/
-    std::list<std::string> icfl_t = build_input_ICFL("../input.txt");
-    print_list(icfl_t); std::cout << std::endl;
-    std::string t = build_text_from_ICFL(icfl_t);
+    */
+    //std::string t = build_text_from_ICFL(icfl_t);
 
     Tree tree = build_tree(icfl_t);
-    //std::cout << t.substr(17,2);
-
-    //test_node_creation();
-    //test_tree_creation();
-    //test_bitvector();
-    //test_comparisons();
     std::cout << "STAMPA ALBERO: " << std::endl;
     print_tree(tree.get_root());
-
-    std::cout << get_strings_difference("abca", "a");
-
 
 
 

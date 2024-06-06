@@ -149,25 +149,46 @@ void print_bv(const pasta::BitVector &bv) {
     std::cout << "]";
 }
 
-void print_g_list_vector(const std::vector<int> g_list){
+/**
+ * @brief Stampa il contenuto di un vettore g_list.
+ * @param g_list Vettore di interi da stampare.
+ *
+ * Questa funzione prende un vettore di interi e stampa il suo contenuto
+ * in formato [ elemento1 elemento2 ... elementoN ].
+ */
+void print_g_list_vector(const std::vector<int> g_list) {
     std::cout << "[ ";
-    for(auto &it : g_list){
+    for (auto &it : g_list) {
         std::cout << it << " ";
     }
     std::cout << "]";
 }
 
+/**
+ * @brief Stampa il contenuto di una mappa con chiave stringa e valore BitVector.
+ * @param map Mappa con chiavi di tipo std::string e valori di tipo pasta::BitVector.
+ *
+ * Questa funzione itera attraverso una mappa e per ogni coppia chiave-valore,
+ * stampa la chiave e chiama `print_bv` per stampare il valore (un oggetto BitVector).
+ */
 void print_bit_map(const std::unordered_map<std::string, pasta::BitVector>& map) {
     for (const auto& pair : map) {
-        std::cout << "Key: " << pair.first << ", Value: ";
+        std::cout << "Chiave: " << pair.first << ", Valore: ";
         print_bv(pair.second);  // Chiama `print_bv` per stampare il valore
         std::cout << std::endl;
     }
 }
 
+/**
+ * @brief Stampa il contenuto di una mappa con chiave e valore stringa.
+ * @param map Mappa con chiavi di tipo std::string e valori di tipo std::string.
+ *
+ * Questa funzione itera attraverso una mappa e per ogni coppia chiave-valore,
+ * stampa la chiave (rappresentante un nodo) e il valore associato (rappresentante il genitore del nodo).
+ */
 void print_node_map(const std::unordered_map<std::string, std::string>& map) {
     for (const auto& pair : map) {
-        std::cout << "NODE: " << pair.first << ", PARENT: " << pair.second << std::endl;
+        std::cout << "NODO: " << pair.first << ", GENITORE: " << pair.second << std::endl;
     }
 }
 
@@ -209,7 +230,7 @@ typename std::list<T>::iterator find_node(std::list<T> &list, unsigned int i){
  * @param y Suffisso di z.
  * @return Punto di inserimento calcolato.
  */
-unsigned int getInsertionTarget(pasta::BitVector& b_x, pasta::BitVector& b_z, std::list<std::string> &icfl_t, std::string y){
+unsigned int getInsertionTarget(pasta::BitVector& b_x, pasta::BitVector& b_z, std::list<std::string> &icfl_t, const std::string& y){
     unsigned int i = 0, k = 0, u = 0, p = 0, s = 0, q = 0, h = 0;
     std::string alpha;
 
@@ -217,7 +238,7 @@ unsigned int getInsertionTarget(pasta::BitVector& b_x, pasta::BitVector& b_z, st
     pasta::FlatRankSelect rs_z(b_z);
 
     i = rs_z.select1(1);
-    k = b_x.size();
+    k = b_x.size() - 1; // prima era b_x.size();
     s = b_x[k] + 1;
 
     if(i == 0){
@@ -233,7 +254,7 @@ unsigned int getInsertionTarget(pasta::BitVector& b_x, pasta::BitVector& b_z, st
 
     p = u - 1;
 
-    while(p >= s){
+    while(p > s){ //prima era >=
         q = rs_x.select1(p - b_x[k]);
         alpha = (*find_node(icfl_t, q+1)).substr(0,y.size());
         if(alpha <= y){
@@ -268,22 +289,33 @@ unsigned int get_maximum_length_from_factors(std::list<std::string> &icfl_t){
     return max;
 }
 
-//-TODO CORREGGI
-std::string get_strings_difference(const std::string &string_1, const std::string &string_2){
-    std::string difference;
-    std::string tmp = string_2;
-    for(char c : string_1){
-        size_t pos = string_2.find(c);
-        if(pos == std::string::npos){
-            difference += c;
-        }
+/**
+ * @brief Restituisce la differenza tra due stringhe.
+ * @param s1 La stringa da cui sottrarre.
+ * @param s2 La stringa da sottrarre.
+ * @return La parte di s1 che rimane dopo aver rimosso s2 dall'inizio, altrimenti s1 intera.
+ *
+ * Questa funzione controlla se s2 è un prefisso di s1. Se lo è, restituisce la parte di s1 che rimane
+ * dopo aver rimosso il prefisso s2. Se s2 non è un prefisso di s1, restituisce s1 intera.
+ */
+std::string get_strings_difference(const std::string& s1, const std::string& s2) {
+    if (s1.find(s2) == 0) {
+        return s1.substr(s2.length());
+    } else {
+        return s1;
     }
-    return difference;
 }
 
+/**
+ * @brief Stampa il contenuto di una mappa con chiave stringa e valore vettore di interi.
+ * @param suffix_map Mappa con chiavi di tipo std::string e valori di tipo std::vector<int>.
+ *
+ * Questa funzione itera attraverso una mappa e per ogni coppia chiave-valore,
+ * stampa la chiave e i valori associati (un vettore di interi).
+ */
 void print_suffix_map(const std::unordered_map<std::string, std::vector<int>>& suffix_map) {
     for (const auto& pair : suffix_map) {
-        std::cout << "Key: " << pair.first << ", Values: ";
+        std::cout << "Chiave: " << pair.first << ", Valori: ";
         for (const auto& value : pair.second) {
             std::cout << value << " ";
         }
@@ -292,7 +324,16 @@ void print_suffix_map(const std::unordered_map<std::string, std::vector<int>>& s
 }
 
 
-Node* find_deepest_prefix_node(Node* node, const std::string suffix){
+/**
+ * @brief Trova il nodo più profondo che ha un suffisso prefisso del suffisso dato.
+ * @param node Puntatore al nodo da cui iniziare la ricerca.
+ * @param suffix Il suffisso da cercare.
+ * @return Puntatore al nodo più profondo il cui suffisso è un prefisso del suffisso dato.
+ *
+ * Questa funzione ricorsiva attraversa l'albero a partire dal nodo dato, cercando il nodo più profondo
+ * il cui suffisso è un prefisso del suffisso dato. Se nessun figlio soddisfa la condizione, restituisce il nodo corrente.
+ */
+Node* find_deepest_prefix_node(Node* node, const std::string suffix) {
     for (Node* child : node->get_children()) {
         std::string figlio = child->get_suffix();
         if (suffix.find(figlio) == 0) {
@@ -328,10 +369,21 @@ void print_tree(Node *node, std::string prefix = "", bool is_last = true) {
 
 }
 
-
+/**
+ * @brief Costruisce un albero a partire da una lista di stringhe.
+ * @param icfl_t Lista di stringhe che rappresentano i fattori da cui costruire l'albero.
+ * @return L'albero costruito.
+ *
+ * Questa funzione costruisce un suffix tree utilizzando i fattori forniti in input. Per ogni lunghezza
+ * del suffisso (da 0 alla lunghezza massima dei fattori), itera sui fattori per estrarre i suffissi
+ * e aggiornare le mappe dei suffissi e dei bit. Successivamente, trova il nodo genitore più profondo
+ * per ogni suffisso, determina l'insertion target e crea un nuovo nodo figlio. Il processo viene ripetuto
+ * fino a completare la costruzione dell'albero.
+ */
 Tree build_tree(std::list<std::string>& icfl_t){
     Tree tree (icfl_t);
     Node *root = tree.get_root();
+    unsigned int insertion_target = 0;
 
     std::unordered_map<std::string, std::vector<int>> suffix_map;
     std::unordered_map<std::string, pasta::BitVector> bit_map;
@@ -369,26 +421,32 @@ Tree build_tree(std::list<std::string>& icfl_t){
                 bit_map[suffix][i] = 1;
             }
         }
-        //print_bit_map(bit_map);
-        //print_suffix_map(suffix_map);
-
-        //FIN QUI PERFETTO
 
         for(auto& entry : suffix_map) {
             std::string s = entry.first;
             Node* parent = find_deepest_prefix_node(root, entry.first);
-            unsigned int insertion_target = getInsertionTarget(*(parent->get_bv_pointer()), bit_map[s], icfl_t,
-                                                               get_strings_difference(s, parent->get_suffix()));
+
+            //prints for debugging
+            /*
+            std::cout << s << " & " << parent->get_suffix() << " = " << get_strings_difference(s, parent->get_suffix()) << std::endl;
+            print_bv(*(parent->get_bv_pointer()));
+            print_bv(bit_map[s]);
+            print_list(icfl_t);
+            */
+
+            insertion_target = getInsertionTarget(*parent->get_bv_pointer(), bit_map[s], icfl_t,
+                                                  get_strings_difference(s, parent->get_suffix()));
 
             std::pair<unsigned int, unsigned int> indexes(suffix_map[s][0], suffix_map[s][0] + (l + 1));
             Node *child = new Node(root, parent, {}, indexes, entry.second, insertion_target, &bit_map[s]);
             parent->add_child(child);
-            child->print_data();
+            //child->print_data();
         }
+
         bit_map.clear();
         suffix_map.clear();
-
     }
+
     return tree;
 }
 

@@ -20,8 +20,8 @@ class Node{
 
 private:
     Node* _parent; ///< Puntatore al nodo genitore.
-    Node* _root;
-    std::string _text;
+    Node* _root; ///< Puntatore al nodo radice.
+    std::string _text; ///< Testo associato al nodo.
     std::vector<Node*> _children; ///< Vettore di puntatori ai nodi figli.
     std::pair<unsigned int, unsigned int> _indexes; ///< Coppia di indici che rappresenta l'intervallo associato al suffisso.
     std::vector<int> _g_list; ///< g-list associata al nodo.
@@ -31,8 +31,6 @@ private:
 
 public:
 
-
-
     /**
     * @brief Costruttore di default.
     */
@@ -40,14 +38,19 @@ public:
         _bv = new pasta::BitVector(1, 0);
     }
 
+    /**
+    * @brief Costruttore con testo e dimensione del BitVector.
+    * @param text Testo associato al nodo.
+    * @param bv_size Dimensione del BitVector.
+    */
     Node(const std::string& text, size_t bv_size)
             : _root(this), _parent(nullptr), _text(text), _children(), _indexes(0, 0), _g_list(), _insertion_target(0) {
         _bv = new pasta::BitVector(bv_size, 0);
     }
 
-
     /**
-     * @brief Costruttore base.
+     * @brief Costruttore con parametri specifici.
+     * @param root Puntatore al nodo radice.
      * @param parent Puntatore al nodo genitore.
      * @param children Vettore di puntatori ai nodi figli.
      * @param indexes Coppia di indici che rappresenta l'intervallo associato al nodo.
@@ -73,9 +76,9 @@ public:
          }
 
     /**
-    * @brief Costruttore di copia.
-    * @param other Nodo da cui copiare.
-    */
+     * @brief Costruttore di copia.
+     * @param other Nodo da cui copiare.
+     */
     Node(const Node& other) : _root(other._root), _parent(other._parent), _children(other._children), _indexes(other._indexes),
                               _g_list(other._g_list), _insertion_target(other._insertion_target) {
         if (other._bv) {
@@ -115,6 +118,9 @@ public:
         return *this;
     }
 
+    /**
+    * @brief Distruttore della classe Node.
+    */
     ~Node() {
         delete _bv;
     }
@@ -127,6 +133,10 @@ public:
         return _parent;
     }
 
+    /**
+    * @brief Restituisce il suffisso associato al nodo.
+    * @return Il suffisso associato al nodo.
+    */
     std::string get_suffix() const {
         if (_indexes == std::make_pair(0, 0)){
             return "";
@@ -138,14 +148,26 @@ public:
         return _text.substr(_indexes.first, _indexes.second - _indexes.first);
     }
 
+    /**
+    * @brief Restituisce il suffisso associato al nodo.
+    * @return Il suffisso associato al nodo.
+    */
     std::string get_text() const{
         return _text;
     }
 
+    /**
+    * @brief Restituisce i figli del nodo.
+    * @return Vettore di puntatori ai nodi figli.
+    */
     std::vector<Node*> get_children() const {
         return _children;
     }
 
+    /**
+    * @brief Imposta il testo associato al nodo e ai suoi figli
+    * @param text Testo da associare al nodo.
+    */
     void set_text(const std::string& text) {
         _text = text;
         for (auto child : _children) {
@@ -155,10 +177,18 @@ public:
         }
     }
 
+    /**
+    * @brief Imposta il BitVector associato al nodo.
+    * @param bv BitVector da associare al nodo.
+    */
     void set_bv(pasta::BitVector &bv){
         _bv = &bv;
     }
 
+    /**
+    * @brief Imposta il nodo genitore.
+    * @param node Puntatore al nodo genitore.
+    */
     void set_parent(Node *node){
         _parent = node;
     }
@@ -200,6 +230,9 @@ public:
         return _bv;
     }
 
+    /**
+    * @brief Stampa il BitVector associato al nodo.
+    */
     void print_bv() {
         for (auto &it: *_bv) {
             std::cout << (it ? '1' : '0');
@@ -207,6 +240,9 @@ public:
         std::cout << std::endl;
     }
 
+    /**
+    * @brief Stampa i figli del nodo.
+    */
     void print_children(){
         for(auto child : _children){
             std::cout << *child << " , ";
@@ -214,6 +250,9 @@ public:
         std::cout << std::endl;
     }
 
+    /**
+    * @brief Stampa tutti i dettagli del nodo.
+    */
     void print_data() {
         std::cout << "-----NODE " << get_suffix() << " -----" << std::endl;
         if (_indexes == std::make_pair(0, 0)) {
@@ -245,6 +284,12 @@ public:
         }
     }
 
+    /**
+    * @brief Operatore di stream di output per la classe Node.
+    * @param os Stream di output.
+    * @param node Nodo da stampare.
+    * @return Stream di output.
+    */
     friend std::ostream& operator<<(std::ostream& os, const Node& node) {
         if(node.get_suffix() != ""){
             os << node.get_suffix();
