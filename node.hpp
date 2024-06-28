@@ -138,8 +138,9 @@ public:
     * @return Il suffisso associato al nodo.
     */
     std::string get_suffix() const {
+        //std::cout << _indexes.first << " " << _indexes.second << _text.size();
         if (_indexes == std::make_pair(0, 0)){
-            return "";
+            return "ROOT";
         }
         int second = _indexes.second;
         if (second > _text.size()) {
@@ -162,6 +163,22 @@ public:
     */
     std::vector<Node*> get_children() const {
         return _children;
+    }
+
+    /**
+    * @brief Restituisce l'insertion target del nodo.
+    * @return unsigend int rappresentante l'insertion target.
+    */
+    unsigned int get_insertion_target() const {
+        return _insertion_target;
+    }
+
+    /**
+    * @brief Restituisce la g-list relativa al nodo.
+    * @return Vettore di interi rappresentante la g-list.
+    */
+    std::vector<int>& get_g_list(){
+        return _g_list;
     }
 
     /**

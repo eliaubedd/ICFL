@@ -156,12 +156,15 @@ void print_bv(const pasta::BitVector &bv) {
  * Questa funzione prende un vettore di interi e stampa il suo contenuto
  * in formato [ elemento1 elemento2 ... elementoN ].
  */
-void print_g_list_vector(const std::vector<int> g_list) {
-    std::cout << "[ ";
-    for (auto &it : g_list) {
-        std::cout << it << " ";
+void print_g_list_vector(const std::vector<int>& g_list) {
+    std::cout << "[";
+    for (size_t i = 0; i < g_list.size(); ++i) {
+        std::cout << g_list[i];
+        if (i != g_list.size() - 1) {
+            std::cout << ", ";
+        }
     }
-    std::cout << "]";
+    std::cout << "]" << std::endl;
 }
 
 /**
@@ -428,11 +431,8 @@ Tree build_tree(std::list<std::string>& icfl_t){
         for(auto& entry : suffix_map) {
             std::string s = entry.first;
             Node* parent = find_deepest_prefix_node(root, entry.first);
-            if(s == "ca"){
-                std::cout << "here";
-            }
 
-            //prints for debugging
+            //PRINTS FOR DEBUGGING
             /*
             std::cout << s << " & " << parent->get_suffix() << " = " << get_strings_difference(s, parent->get_suffix()) << std::endl;
             print_bv(*(parent->get_bv_pointer()));
@@ -457,6 +457,50 @@ Tree build_tree(std::list<std::string>& icfl_t){
     }
 
     return tree;
+}
+
+/**
+ * @brief Costruisce una lista inserendo la g-list di ogni nodo nella g-list del nodo genitore.
+ *
+ * La funzione viene chiamata ricorsivamente per ogni nodo e i suoi figli,
+ * inserendo la g-list di ciascun nodo nella g-list del nodo genitore in una posizione specificata.
+ * La g-list della radice dell'albero corrisponderà al suffix-array.
+ *
+ * @param node Puntatore al nodo corrente.
+ */
+void build_list(Node* node) {
+    for (int i = node->get_children().size() - 1; i >= 0; i--) {
+        build_list(node->get_children()[i]);
+    }
+
+    //PRINTS FOR DEBUGGING
+    //std::cout << " ------------ " << std::endl;
+    //std::cout << "analyzing " << node->get_suffix() << "..."  << std::endl;
+
+    unsigned int h = node->get_insertion_target();
+    //std::cout << "insertion target: " << h << std::endl;
+
+    Node* parent = node->get_parent();
+    if (parent == nullptr) {
+        std::cout << "Parent node is null" << std::endl;
+        return;
+    }
+
+    std::vector<int>& parent_g_list = parent->get_g_list();
+    std::vector<int>& node_g_list = node->get_g_list();
+
+    std::vector<int>::iterator it = parent_g_list.begin();
+    std::advance(it, h);
+
+    //std::cout << "printing before: parent ";
+    //print_g_list_vector(parent_g_list);
+    //std::cout << "child: ";
+    //print_g_list_vector(node_g_list);
+
+    //insertion
+    parent_g_list.insert(it, node_g_list.begin(), node_g_list.end());
+    std::cout << "printing " << node->get_parent()->get_suffix() << " list: ";
+    print_g_list_vector(parent_g_list);
 }
 
 

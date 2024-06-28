@@ -104,6 +104,8 @@ int main()
     std::cout << "STAMPA ALBERO: " << std::endl;
     print_tree(tree.get_root());
 
+    build_list(tree.get_root());
+
 
 
     return 0;
