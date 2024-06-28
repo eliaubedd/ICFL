@@ -146,7 +146,7 @@ void print_bv(const pasta::BitVector &bv) {
     for (auto &it: bv) {
         std::cout << (it ? '1' : '0') << " ";
     }
-    std::cout << "]";
+    std::cout << "]" << std::flush;
 }
 
 /**
@@ -237,24 +237,26 @@ unsigned int getInsertionTarget(pasta::BitVector& b_x, pasta::BitVector& b_z, st
     pasta::FlatRankSelect rs_x(b_x);
     pasta::FlatRankSelect rs_z(b_z);
 
+    std::cout << std::endl;
+
     i = rs_z.select1(1);
-    k = b_x.size() - 1; // prima era b_x.size();
+    k = b_x.size() - 1;
     s = b_x[k] + 1;
 
-    if(i == 0){
-        return 0;
-    }
 
-    if(i < k){
-        u = rs_z.rank1(i-1) + b_x[k] + 1;
+    if(i == 0){
+        u = rs_x.rank1(i) + b_x[k] + 1;
+    }
+    else if(i < k){
+        u = rs_x.rank1(i-1) + b_x[k] + 1;
     }
     else{
-        u = rs_z.rank1(b_z.size()) + 1;
+        u = rs_x.rank1(b_x.size()) + 1;
     }
 
     p = u - 1;
 
-    while(p > s){ //prima era >=
+    while(p > s){
         q = rs_x.select1(p - b_x[k]);
         alpha = (*find_node(icfl_t, q+1)).substr(0,y.size());
         if(alpha <= y){
@@ -265,8 +267,9 @@ unsigned int getInsertionTarget(pasta::BitVector& b_x, pasta::BitVector& b_z, st
         }
     }
 
-    h = p + 1;
-    return h;
+    //h = p + 1;
+    //return h;
+    return p;
 }
 
 /**
@@ -425,13 +428,16 @@ Tree build_tree(std::list<std::string>& icfl_t){
         for(auto& entry : suffix_map) {
             std::string s = entry.first;
             Node* parent = find_deepest_prefix_node(root, entry.first);
+            if(s == "ca"){
+                std::cout << "here";
+            }
 
             //prints for debugging
             /*
             std::cout << s << " & " << parent->get_suffix() << " = " << get_strings_difference(s, parent->get_suffix()) << std::endl;
             print_bv(*(parent->get_bv_pointer()));
             print_bv(bit_map[s]);
-            print_list(icfl_t);
+            //print_list(icfl_t);
             */
 
             insertion_target = getInsertionTarget(*parent->get_bv_pointer(), bit_map[s], icfl_t,
@@ -440,7 +446,10 @@ Tree build_tree(std::list<std::string>& icfl_t){
             std::pair<unsigned int, unsigned int> indexes(suffix_map[s][0], suffix_map[s][0] + (l + 1));
             Node *child = new Node(root, parent, {}, indexes, entry.second, insertion_target, &bit_map[s]);
             parent->add_child(child);
-            //child->print_data();
+            child->print_data();
+
+            //clear the buffer
+            std::cout << std::endl;
         }
 
         bit_map.clear();
@@ -449,6 +458,8 @@ Tree build_tree(std::list<std::string>& icfl_t){
 
     return tree;
 }
+
+
 
 
 

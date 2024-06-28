@@ -74,7 +74,7 @@ int main()
     print_list(icfl_t); std::cout << std::endl;
 
     //Create suffix
-    /*
+
     std::string x = "a";
     std::string z = "abca";
     std::string y = "bca";
@@ -85,7 +85,7 @@ int main()
     std::cout << "[x]_g-list = "; print_list(xgList);
     std::cout << "[z]_g-list = "; print_list(zgList);
 
-
+    /*
     //Create a bit vectors
     pasta::BitVector bv_x(4, 1);
     pasta::BitVector bv_z(4, 0);
