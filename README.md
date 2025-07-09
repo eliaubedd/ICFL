@@ -26,9 +26,7 @@ Given a totally ordered alphabet Σ, the **Suffix Array** of a string T is an ar
 
 ### Inverse Lyndon Factorization (ICFL)
 A string S ∈ Σ⁺ can be uniquely factorized into a sequence of **Inverse Lyndon words**:
-$
-ICFL(S) = m_1, m_2, ..., m_k
-$
+$ICFL(S) = m_1, m_2, ..., m_k$
 Each $m_i$ satisfies $m_i \ll m_{i+1}$, and preserves essential border properties that facilitate suffix ordering.
 
 ### Local vs Global Suffixes
